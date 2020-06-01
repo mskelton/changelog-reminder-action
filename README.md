@@ -1,36 +1,53 @@
-# GitHub action to add a changelog reminder
+# Changelog Reminder Action
 
-After installation this action will check that the files in a pull request
-contain a changelog. If the changelog is not present, the action will create
-the comment:
+> Github action to remind users their pull request is missing a changelog.
 
-![changelog_comment](https://user-images.githubusercontent.com/1332395/64420560-76021d80-d097-11e9-936c-e1fc9e92fbfb.png)
+![Example comments](https://user-images.githubusercontent.com/1332395/64420560-76021d80-d097-11e9-936c-e1fc9e92fbfb.png)
 
-The test for changelog defaults to the regex `/change_log\/.*\/*.yml`
+## Inputs
 
-- `change_log/next/RU-3456.yml` ✅
-- `changelog/RU-3456.yml` ❌
+### `changelogRegex`
 
-But you can supply your regex for changelogs (see example below)
+Regex pattern to match the changelog. Default: `CHANGELOG\.md`
 
-## Installation
+### `message`
 
-To configure the action simply add the following lines to your `.github/workflows/rebase.yml` workflow file:
+Message to display if no changelog is found. Default: `"@${{ github.actor }} your pull request is missing a changelog!"`
+
+### `include`
+
+Regex pattern of files to include. This is useful for monorepos where you only want the changelog reminder to run for package changes. Default: `''`
+
+### `token`
+
+`GITHUB_TOKEN` used to authenticate requests. Since there's a default, this is typically not supplied by the user. Default: `${{ github.token }}`
+
+## Usage
+
+Basic:
 
 ```yml
-on: pull_request
-name: Changelog Reminder
-jobs:
-  remind:
-    name: Changelog Reminder
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@master
-    - name: Changelog Reminder
-      uses: peterjgrainger/action-changelog-reminder@v1.2.0
-      with:
-        changelog_regex: '/change_log\/.*\/*.yml'
-        customPrMessage: 'You broke regulation TO-67!'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+steps:
+  - uses: actions/checkout@v2
+  - uses: mskelton/changelog-reminder-action@v1
+```
+
+Custom message:
+
+```yml
+steps:
+  - uses: actions/checkout@v2
+  - uses: mskelton/changelog-reminder-action@v1
+    with:
+      message: "Oops! Looks like you forgot to update the changelog."
+```
+
+Include specific files:
+
+```yml
+steps:
+  - uses: actions/checkout@v2
+  - uses: mskelton/changelog-reminder-action@v1
+    with:
+      include: "packages/.*"
 ```

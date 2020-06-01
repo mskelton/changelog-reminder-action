@@ -1,15 +1,22 @@
-name: 'Changelog Reminder'
-description: 'If there is not a changelog in the PR add a comment to remind the committer'
-author: 'GitHub'
+name: Changelog Reminder
+description: Reminds users to add a changelog if their pull request is missing one
+author: Mark Skelton
 branding:
-  icon: 'check'
-  color: 'green'
+  icon: check
+  color: green
 inputs:
-  changelog_regex:
-    description: "A regex to match changelog file, default to 'change_log\\/.*\\/*.yml'"
-  customPrMessage:
-    description: "Custom message to display if no changelong is found"
-
+  changelogRegex:
+    description: Regex pattern to match the changelog
+    default: CHANGELOG\.md
+  message:
+    description: Message to display if no changelog is found
+    default: "@${{ github.actor }} your pull request is missing a changelog!"
+  include:
+    description: Regex pattern of files to include. This is useful for monorepos where you only want the changelog reminder to run for package changes.
+    default: ""
+  token:
+    description: GITHUB_TOKEN used to authenticate requests. Since there's a default, this is typically not supplied by the user.
+    default: ${{ github.token }}
 runs:
-  using: 'node12'
-  main: 'dist/index.js'
+  using: node12
+  main: dist/index.js
