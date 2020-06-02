@@ -1,4 +1,4 @@
-name: Changelog Reminder
+name: Missing Changelog Reminder
 description: Reminds users to add a changelog if their pull request is missing one
 author: Mark Skelton
 branding:
@@ -15,7 +15,7 @@ inputs:
     description: Regex pattern of files to include. This is useful for monorepos where you only want the changelog reminder to run for package changes.
     default: ""
   token:
-    description: GITHUB_TOKEN used to authenticate requests. Since there's a default, this is typically not supplied by the user.
+    description: "GITHUB_TOKEN used to authenticate requests. Since there's a default, this is typically not supplied by the user."
     default: ${{ github.token }}
 runs:
   using: node12
