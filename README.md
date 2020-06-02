@@ -18,6 +18,10 @@ Message to display if no changelog is found. Default: `"@${{ github.actor }} you
 
 Regex pattern of files to include. This is useful for monorepos where you only want the changelog reminder to run for package changes. Default: `''`
 
+### `exclude`
+
+Regex pattern of files to exclude. Default: `''`
+
 ### `token`
 
 `GITHUB_TOKEN` used to authenticate requests. Since there's a default, this is typically not supplied by the user. Default: `${{ github.token }}`
