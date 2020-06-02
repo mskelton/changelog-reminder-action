@@ -20,11 +20,17 @@ const comments = (...comments) => ({
 
 function mockInput({
   changelogRegex = "CHANGELOG\\.md",
+  exclude = "",
   include = "",
   message = "@mskelton your pull request is missing a changelog!",
 }) {
   getInput.mockImplementation((input) => {
-    return { changelogRegex, include, message }[input]
+    return {
+      changelogRegex,
+      exclude,
+      include,
+      message,
+    }[input]
   })
 }
 
@@ -65,6 +71,22 @@ it("should use the 'message' input for the comment message", async () => {
 it("should not comment if the files changed don't match the include regex", async () => {
   mockInput({ include: "packages/.*" })
   listFilesMock.mockResolvedValue(files("file"))
+
+  await remind()
+  expect(createCommentMock).not.toHaveBeenCalled()
+})
+
+it("should not comment if the files changed match the exclude regex", async () => {
+  mockInput({ exclude: "foo.js" })
+  listFilesMock.mockResolvedValue(files("foo.js"))
+
+  await remind()
+  expect(createCommentMock).not.toHaveBeenCalled()
+})
+
+it("should work with both include and exclude", async () => {
+  mockInput({ exclude: ".*/test/.*", include: "packages/.*" })
+  listFilesMock.mockResolvedValue(files("packages/foo/test/bar.js"))
 
   await remind()
   expect(createCommentMock).not.toHaveBeenCalled()

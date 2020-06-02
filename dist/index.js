@@ -9323,9 +9323,13 @@ function isChangelogMissing() {
         const octokit = new github.GitHub(Object(core.getInput)("token"));
         const changelogRegex = new RegExp(Object(core.getInput)("changelogRegex"));
         const includeRegex = new RegExp(Object(core.getInput)("include"));
+        const exclude = Object(core.getInput)("exclude");
+        const excludeRegex = new RegExp(exclude);
         const { data: files } = yield octokit.pulls.listFiles(Object.assign(Object.assign({}, github.context.repo), { pull_number: github.context.payload.pull_request.number }));
         const hasChangelog = files.some(({ filename }) => changelogRegex.test(filename));
-        const hasIncludedFile = files.some(({ filename }) => includeRegex.test(filename));
+        const hasIncludedFile = files
+            .filter(({ filename }) => !(exclude && excludeRegex.test(filename)))
+            .some(({ filename }) => includeRegex.test(filename));
         return !hasChangelog && hasIncludedFile;
     });
 }
