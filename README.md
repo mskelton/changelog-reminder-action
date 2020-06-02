@@ -2,7 +2,7 @@
 
 > Github action to remind users their pull request is missing a changelog.
 
-![Example comments](https://user-images.githubusercontent.com/1332395/64420560-76021d80-d097-11e9-936c-e1fc9e92fbfb.png)
+![Example comments](https://raw.githubusercontent.com/mskelton/changelog-reminder-action/master/screenshot.png)
 
 ## Inputs
 
