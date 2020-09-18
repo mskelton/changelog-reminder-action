@@ -40,7 +40,7 @@ module.exports =
 /******/ 	// the startup function
 /******/ 	function startup() {
 /******/ 		// Load entry module and return exports
-/******/ 		return __webpack_require__(818);
+/******/ 		return __webpack_require__(14);
 /******/ 	};
 /******/ 	// initialize runtime
 /******/ 	runtime(__webpack_require__);
@@ -292,6 +292,152 @@ function wrappy (fn, cb) {
     return ret
   }
 }
+
+
+/***/ }),
+
+/***/ 14:
+/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+
+// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
+var core = __webpack_require__(470);
+
+// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
+var github = __webpack_require__(469);
+
+// CONCATENATED MODULE: ./src/getComment.ts
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+/**
+ * Because multiple users can interact with a PR, we need to normalize the
+ * comment text to remove any user at mentions to prevent creating duplicate
+ * comments which only differ based on the user who they are mentioning.
+ *
+ * @param comment - The comment text to normalize
+ */
+function normalizeComment(comment) {
+    return comment.replace(/@[A-z\d-]+/g, "");
+}
+function getComment() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const octokit = new github.GitHub(Object(core.getInput)("token"));
+        const message = normalizeComment(Object(core.getInput)("message"));
+        const { data: comments } = yield octokit.issues.listComments(Object.assign(Object.assign({}, github.context.repo), { issue_number: github.context.payload.pull_request.number }));
+        return comments.find(({ body }) => normalizeComment(body) === message);
+    });
+}
+
+// CONCATENATED MODULE: ./src/isChangelogMissing.ts
+var isChangelogMissing_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+function isChangelogMissing() {
+    return isChangelogMissing_awaiter(this, void 0, void 0, function* () {
+        const octokit = new github.GitHub(Object(core.getInput)("token"));
+        const changelogRegex = new RegExp(Object(core.getInput)("changelogRegex"));
+        const includeRegex = new RegExp(Object(core.getInput)("include"));
+        const exclude = Object(core.getInput)("exclude");
+        const excludeRegex = new RegExp(exclude);
+        const { data: files } = yield octokit.pulls.listFiles(Object.assign(Object.assign({}, github.context.repo), { pull_number: github.context.payload.pull_request.number }));
+        const hasChangelog = files.some(({ filename }) => changelogRegex.test(filename));
+        const hasIncludedFile = files
+            .filter(({ filename }) => !(exclude && excludeRegex.test(filename)))
+            .some(({ filename }) => includeRegex.test(filename));
+        return !hasChangelog && hasIncludedFile;
+    });
+}
+
+// CONCATENATED MODULE: ./src/minimizeComment.ts
+var minimizeComment_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+const query = `
+mutation($subjectId: ID!) {
+  minimizeComment(input: { subjectId: $subjectId, classifier: RESOLVED }) {
+    clientMutationId
+  }
+}
+`;
+function minimizeComment(id) {
+    return minimizeComment_awaiter(this, void 0, void 0, function* () {
+        const octokit = new github.GitHub(Object(core.getInput)("token"));
+        yield octokit.graphql(query, { subjectId: id });
+    });
+}
+
+// CONCATENATED MODULE: ./src/index.ts
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "remind", function() { return remind; });
+var src_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+function remind() {
+    var _a;
+    return src_awaiter(this, void 0, void 0, function* () {
+        // Don't run the action on draft PRs
+        if ((_a = github.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.draft) {
+            return;
+        }
+        try {
+            const octokit = new github.GitHub(Object(core.getInput)("token"));
+            const [changelogMissing, comment] = yield Promise.all([
+                yield isChangelogMissing(),
+                yield getComment(),
+            ]);
+            if (changelogMissing && !comment) {
+                yield octokit.issues.createComment(Object.assign(Object.assign({}, github.context.repo), { body: Object(core.getInput)("message"), issue_number: github.context.issue.number }));
+            }
+            // If the comment exists and the changelog is not missing then the user
+            // must have pushed a commit to add the changelog entry. When this happens
+            // we can hide the now outdated comment.
+            if (comment && !changelogMissing) {
+                yield minimizeComment(comment.node_id);
+            }
+        }
+        catch (err) {
+            Object(core.setFailed)(err.message);
+        }
+    });
+}
+remind();
 
 
 /***/ }),
@@ -8335,55 +8481,6 @@ function getPageLinks (link) {
 
 /***/ }),
 
-/***/ 587:
-/***/ (function(module, __unusedexports, __webpack_require__) {
-
-module.exports = isexe
-isexe.sync = sync
-
-var fs = __webpack_require__(747)
-
-function checkPathExt (path, options) {
-  var pathext = options.pathExt !== undefined ?
-    options.pathExt : process.env.PATHEXT
-
-  if (!pathext) {
-    return true
-  }
-
-  pathext = pathext.split(';')
-  if (pathext.indexOf('') !== -1) {
-    return true
-  }
-  for (var i = 0; i < pathext.length; i++) {
-    var p = pathext[i].toLowerCase()
-    if (p && path.substr(-p.length).toLowerCase() === p) {
-      return true
-    }
-  }
-  return false
-}
-
-function checkStat (stat, path, options) {
-  if (!stat.isSymbolicLink() && !stat.isFile()) {
-    return false
-  }
-  return checkPathExt(path, options)
-}
-
-function isexe (path, options, cb) {
-  fs.stat(path, function (er, stat) {
-    cb(er, er ? false : checkStat(stat, path, options))
-  })
-}
-
-function sync (path, options) {
-  return checkStat(fs.statSync(path), path, options)
-}
-
-
-/***/ }),
-
 /***/ 605:
 /***/ (function(module) {
 
@@ -8752,7 +8849,7 @@ module.exports = (promise, onFinally) => {
 var fs = __webpack_require__(747)
 var core
 if (process.platform === 'win32' || global.TESTING_WINDOWS) {
-  core = __webpack_require__(587)
+  core = __webpack_require__(818)
 } else {
   core = __webpack_require__(197)
 }
@@ -9281,110 +9378,50 @@ module.exports = /^#!.*/;
 /***/ }),
 
 /***/ 818:
-/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, __unusedexports, __webpack_require__) {
 
-"use strict";
-__webpack_require__.r(__webpack_exports__);
+module.exports = isexe
+isexe.sync = sync
 
-// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
-var core = __webpack_require__(470);
+var fs = __webpack_require__(747)
 
-// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
-var github = __webpack_require__(469);
+function checkPathExt (path, options) {
+  var pathext = options.pathExt !== undefined ?
+    options.pathExt : process.env.PATHEXT
 
-// CONCATENATED MODULE: ./src/does-comment-exist.ts
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
+  if (!pathext) {
+    return true
+  }
 
-
-/**
- * Because multiple users can interact with a PR, we need to normalize the
- * comment text to remove any user at mentions to prevent creating duplicate
- * comments which only differ based on the user who they are mentioning.
- *
- * @param comment - The comment text to normalize
- */
-function normalizeComment(comment) {
-    return comment.replace(/@[A-z\d-]+/g, "");
-}
-function doesCommentExist() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const octokit = new github.GitHub(Object(core.getInput)("token"));
-        const message = normalizeComment(Object(core.getInput)("message"));
-        const { data: comments } = yield octokit.issues.listComments(Object.assign(Object.assign({}, github.context.repo), { issue_number: github.context.payload.pull_request.number }));
-        return comments.some(({ body }) => normalizeComment(body) === message);
-    });
+  pathext = pathext.split(';')
+  if (pathext.indexOf('') !== -1) {
+    return true
+  }
+  for (var i = 0; i < pathext.length; i++) {
+    var p = pathext[i].toLowerCase()
+    if (p && path.substr(-p.length).toLowerCase() === p) {
+      return true
+    }
+  }
+  return false
 }
 
-// CONCATENATED MODULE: ./src/is-changelog-missing.ts
-var is_changelog_missing_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-function isChangelogMissing() {
-    return is_changelog_missing_awaiter(this, void 0, void 0, function* () {
-        const octokit = new github.GitHub(Object(core.getInput)("token"));
-        const changelogRegex = new RegExp(Object(core.getInput)("changelogRegex"));
-        const includeRegex = new RegExp(Object(core.getInput)("include"));
-        const exclude = Object(core.getInput)("exclude");
-        const excludeRegex = new RegExp(exclude);
-        const { data: files } = yield octokit.pulls.listFiles(Object.assign(Object.assign({}, github.context.repo), { pull_number: github.context.payload.pull_request.number }));
-        const hasChangelog = files.some(({ filename }) => changelogRegex.test(filename));
-        const hasIncludedFile = files
-            .filter(({ filename }) => !(exclude && excludeRegex.test(filename)))
-            .some(({ filename }) => includeRegex.test(filename));
-        return !hasChangelog && hasIncludedFile;
-    });
+function checkStat (stat, path, options) {
+  if (!stat.isSymbolicLink() && !stat.isFile()) {
+    return false
+  }
+  return checkPathExt(path, options)
 }
 
-// CONCATENATED MODULE: ./src/index.ts
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "remind", function() { return remind; });
-var src_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-
-
-
-
-function remind() {
-    return src_awaiter(this, void 0, void 0, function* () {
-        try {
-            const octokit = new github.GitHub(Object(core.getInput)("token"));
-            console.log(github.context);
-            const [changelogMissing, commentExists] = yield Promise.all([
-                yield isChangelogMissing(),
-                yield doesCommentExist(),
-            ]);
-            if (changelogMissing && !commentExists) {
-                yield octokit.issues.createComment(Object.assign(Object.assign({}, github.context.repo), { body: Object(core.getInput)("message"), issue_number: github.context.issue.number }));
-            }
-        }
-        catch (err) {
-            Object(core.setFailed)(err.message);
-        }
-    });
+function isexe (path, options, cb) {
+  fs.stat(path, function (er, stat) {
+    cb(er, er ? false : checkStat(stat, path, options))
+  })
 }
-remind();
+
+function sync (path, options) {
+  return checkStat(fs.statSync(path), path, options)
+}
 
 
 /***/ }),
