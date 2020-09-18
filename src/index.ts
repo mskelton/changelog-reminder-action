@@ -4,9 +4,13 @@ import { doesCommentExist } from "./does-comment-exist"
 import { isChangelogMissing } from "./is-changelog-missing"
 
 export async function remind() {
+  // Don't run the action on draft PRs
+  if (context.payload.pull_request?.draft) {
+    return
+  }
+
   try {
     const octokit = new GitHub(getInput("token"))
-    console.log(context)
 
     const [changelogMissing, commentExists] = await Promise.all([
       await isChangelogMissing(),

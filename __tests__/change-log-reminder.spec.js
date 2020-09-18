@@ -4,6 +4,7 @@ jest.mock("@actions/github")
 import { getInput, setFailed } from "@actions/core"
 import {
   createCommentMock,
+  draftMock,
   listCommentsMock,
   listFilesMock,
 } from "@actions/github"
@@ -117,4 +118,12 @@ it("should set the workflow as failed if an error occurs", async () => {
 
   await remind()
   expect(setFailed).toHaveBeenCalledWith("Oops")
+})
+
+it("should ignore draft PRs", async () => {
+  draftMock.mockReturnValue(true)
+  listFilesMock.mockResolvedValue(files("file"))
+
+  await remind()
+  expect(createCommentMock).not.toHaveBeenCalled()
 })
