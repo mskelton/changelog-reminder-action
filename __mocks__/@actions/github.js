@@ -1,8 +1,11 @@
 export const listFilesMock = jest.fn()
 export const createCommentMock = jest.fn()
 export const listCommentsMock = jest.fn()
+export const graphqlMock = jest.fn()
 
 export class GitHub {
+  graphql = graphqlMock
+
   issues = {
     createComment: createCommentMock,
     listComments: listCommentsMock,

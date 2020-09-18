@@ -5,6 +5,7 @@ import { getInput, setFailed } from "@actions/core"
 import {
   createCommentMock,
   draftMock,
+  graphqlMock,
   listCommentsMock,
   listFilesMock,
 } from "@actions/github"
@@ -126,4 +127,18 @@ it("should ignore draft PRs", async () => {
 
   await remind()
   expect(createCommentMock).not.toHaveBeenCalled()
+})
+
+it("should minimize reminder comments after a changelog is committed", async () => {
+  listFilesMock.mockResolvedValue(files("file"))
+  await remind()
+  expect(createCommentMock).toHaveBeenCalled()
+  expect(graphqlMock).not.toHaveBeenCalled()
+
+  listFilesMock.mockResolvedValue(files("file", "CHANGELOG.md"))
+  listCommentsMock.mockResolvedValue(
+    comments("@mskelton your pull request is missing a changelog!")
+  )
+  await remind()
+  expect(graphqlMock).toHaveBeenCalled()
 })

@@ -12,7 +12,7 @@ function normalizeComment(comment: string) {
   return comment.replace(/@[A-z\d-]+/g, "")
 }
 
-export async function doesCommentExist() {
+export async function getComment() {
   const octokit = new GitHub(getInput("token"))
   const message = normalizeComment(getInput("message"))
 
@@ -21,5 +21,5 @@ export async function doesCommentExist() {
     issue_number: context.payload.pull_request!.number,
   })
 
-  return comments.some(({ body }) => normalizeComment(body) === message)
+  return comments.find(({ body }) => normalizeComment(body) === message)
 }
