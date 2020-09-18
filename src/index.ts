@@ -6,6 +6,7 @@ import { isChangelogMissing } from "./is-changelog-missing"
 export async function remind() {
   try {
     const octokit = new GitHub(getInput("token"))
+    console.log(context)
 
     const [changelogMissing, commentExists] = await Promise.all([
       await isChangelogMissing(),
