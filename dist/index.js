@@ -9304,12 +9304,22 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 };
 
 
+/**
+ * Because multiple users can interact with a PR, we need to normalize the
+ * comment text to remove any user at mentions to prevent creating duplicate
+ * comments which only differ based on the user who they are mentioning.
+ *
+ * @param comment - The comment text to normalize
+ */
+function normalizeComment(comment) {
+    return comment.replace(/@[A-z\d-]+/g, "");
+}
 function doesCommentExist() {
     return __awaiter(this, void 0, void 0, function* () {
         const octokit = new github.GitHub(Object(core.getInput)("token"));
-        const message = Object(core.getInput)("message");
+        const message = normalizeComment(Object(core.getInput)("message"));
         const { data: comments } = yield octokit.issues.listComments(Object.assign(Object.assign({}, github.context.repo), { issue_number: github.context.payload.pull_request.number }));
-        return comments.some(({ body }) => body === message);
+        return comments.some(({ body }) => normalizeComment(body) === message);
     });
 }
 
@@ -9360,6 +9370,7 @@ function remind() {
     return src_awaiter(this, void 0, void 0, function* () {
         try {
             const octokit = new github.GitHub(Object(core.getInput)("token"));
+            console.log(github.context);
             const [changelogMissing, commentExists] = yield Promise.all([
                 yield isChangelogMissing(),
                 yield doesCommentExist(),
