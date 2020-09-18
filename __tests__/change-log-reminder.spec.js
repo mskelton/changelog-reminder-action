@@ -35,8 +35,9 @@ function mockInput({
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  jest.resetAllMocks()
 
+  mockInput({})
   listFilesMock.mockResolvedValue(files("file"))
   listCommentsMock.mockResolvedValue(comments("comment1", "comment2"))
 })
@@ -96,6 +97,16 @@ it("should not comment if the comment already exists", async () => {
   mockInput({ message: "custom message" })
   listFilesMock.mockResolvedValue(files("file"))
   listCommentsMock.mockResolvedValue(comments("custom message"))
+
+  await remind()
+  expect(createCommentMock).not.toHaveBeenCalled()
+})
+
+it("should not comment if the comment exists which mentioned another user", async () => {
+  listFilesMock.mockResolvedValue(files("file"))
+  listCommentsMock.mockResolvedValue(
+    comments("@other-user your pull request is missing a changelog!")
+  )
 
   await remind()
   expect(createCommentMock).not.toHaveBeenCalled()
