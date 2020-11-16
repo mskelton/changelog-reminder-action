@@ -1,5 +1,5 @@
 import { getInput } from "@actions/core"
-import { GitHub } from "@actions/github"
+import { getOctokit } from "@actions/github"
 
 const query = `
 mutation($subjectId: ID!) {
@@ -10,6 +10,6 @@ mutation($subjectId: ID!) {
 `
 
 export async function minimizeComment(id: string) {
-  const octokit = new GitHub(getInput("token"))
+  const octokit = getOctokit(getInput("token"))
   await octokit.graphql(query, { subjectId: id })
 }

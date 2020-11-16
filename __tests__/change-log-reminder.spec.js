@@ -8,8 +8,7 @@ import {
   listCommentsMock,
   listFilesMock,
 } from "@actions/github"
-
-import { remind } from "../src"
+import { runAction } from "../src/runAction"
 
 const files = (...filenames) => ({
   data: filenames.map((filename) => ({ filename })),
@@ -39,7 +38,7 @@ beforeEach(() => {
 it("should not create a comment when the regex finds a changelog", async () => {
   listFilesMock.mockResolvedValue(files("file", "CHANGELOG.md"))
 
-  await remind()
+  await runAction()
   expect(createCommentMock).not.toHaveBeenCalled()
 })
 
@@ -49,7 +48,7 @@ it("should create a comment when the regex does not find a changelog", async () 
     files("file", "CHANGELOG.html", "CHANGELOG.md")
   )
 
-  await remind()
+  await runAction()
   expect(createCommentMock).toHaveBeenCalled()
 })
 
@@ -57,7 +56,7 @@ it("should use the 'message' input for the comment message", async () => {
   mockInput({ message: "Oops! You forgot" })
   listFilesMock.mockResolvedValue(files("file"))
 
-  await remind()
+  await runAction()
   expect(createCommentMock).toHaveBeenCalledWith(
     expect.objectContaining({ body: "Oops! You forgot" })
   )
@@ -68,7 +67,7 @@ it("should not comment if the comment already exists", async () => {
   listFilesMock.mockResolvedValue(files("file"))
   listCommentsMock.mockResolvedValue(comments("custom message"))
 
-  await remind()
+  await runAction()
   expect(createCommentMock).not.toHaveBeenCalled()
 })
 
@@ -78,20 +77,20 @@ it("should not comment if the comment exists which mentioned another user", asyn
     comments("@other-user your pull request is missing a changelog!")
   )
 
-  await remind()
+  await runAction()
   expect(createCommentMock).not.toHaveBeenCalled()
 })
 
 it("should set the workflow as failed if an error occurs", async () => {
   listFilesMock.mockRejectedValue(new Error("Oops"))
 
-  await remind()
+  await runAction()
   expect(setFailed).toHaveBeenCalledWith("Oops")
 })
 
 it("should minimize reminder comments after a changelog is committed", async () => {
   listFilesMock.mockResolvedValue(files("file"))
-  await remind()
+  await runAction()
   expect(createCommentMock).toHaveBeenCalled()
   expect(graphqlMock).not.toHaveBeenCalled()
 
@@ -99,6 +98,6 @@ it("should minimize reminder comments after a changelog is committed", async () 
   listCommentsMock.mockResolvedValue(
     comments("@mskelton your pull request is missing a changelog!")
   )
-  await remind()
+  await runAction()
   expect(graphqlMock).toHaveBeenCalled()
 })

@@ -1,5 +1,5 @@
 import { getInput } from "@actions/core"
-import { context, GitHub } from "@actions/github"
+import { context, getOctokit } from "@actions/github"
 
 /**
  * Because multiple users can interact with a PR, we need to normalize the
@@ -13,12 +13,12 @@ function normalizeComment(comment: string) {
 }
 
 export async function getComment() {
-  const octokit = new GitHub(getInput("token"))
+  const octokit = getOctokit(getInput("token"))
   const message = normalizeComment(getInput("message"))
 
   const { data: comments } = await octokit.issues.listComments({
     ...context.repo,
-    issue_number: context.payload.pull_request!.number,
+    issue_number: context.issue.number,
   })
 
   return comments.find(({ body }) => normalizeComment(body) === message)
