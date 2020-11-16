@@ -656,9 +656,3 @@ export const context = {
   sha: "ebb4992dc72451c1c6c99e1cce9d741ec0b5b7d7",
   workflow: "CI",
 }
-
-export const draftMock = jest.fn()
-
-Object.defineProperty(context.payload.pull_request, "draft", {
-  get: draftMock.mockReturnValue(false),
-})

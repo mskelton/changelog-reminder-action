@@ -4,7 +4,6 @@ jest.mock("@actions/github")
 import { getInput, setFailed } from "@actions/core"
 import {
   createCommentMock,
-  draftMock,
   graphqlMock,
   listCommentsMock,
   listFilesMock,
@@ -22,17 +21,10 @@ const comments = (...comments) => ({
 
 function mockInput({
   changelogRegex = "CHANGELOG\\.md",
-  exclude = "",
-  include = "",
   message = "@mskelton your pull request is missing a changelog!",
 }) {
   getInput.mockImplementation((input) => {
-    return {
-      changelogRegex,
-      exclude,
-      include,
-      message,
-    }[input]
+    return { changelogRegex, message }[input]
   })
 }
 
@@ -71,30 +63,6 @@ it("should use the 'message' input for the comment message", async () => {
   )
 })
 
-it("should not comment if the files changed don't match the include regex", async () => {
-  mockInput({ include: "packages/.*" })
-  listFilesMock.mockResolvedValue(files("file"))
-
-  await remind()
-  expect(createCommentMock).not.toHaveBeenCalled()
-})
-
-it("should not comment if the files changed match the exclude regex", async () => {
-  mockInput({ exclude: "foo.js" })
-  listFilesMock.mockResolvedValue(files("foo.js"))
-
-  await remind()
-  expect(createCommentMock).not.toHaveBeenCalled()
-})
-
-it("should work with both include and exclude", async () => {
-  mockInput({ exclude: ".*/test/.*", include: "packages/.*" })
-  listFilesMock.mockResolvedValue(files("packages/foo/test/bar.js"))
-
-  await remind()
-  expect(createCommentMock).not.toHaveBeenCalled()
-})
-
 it("should not comment if the comment already exists", async () => {
   mockInput({ message: "custom message" })
   listFilesMock.mockResolvedValue(files("file"))
@@ -119,14 +87,6 @@ it("should set the workflow as failed if an error occurs", async () => {
 
   await remind()
   expect(setFailed).toHaveBeenCalledWith("Oops")
-})
-
-it("should ignore draft PRs", async () => {
-  draftMock.mockReturnValue(true)
-  listFilesMock.mockResolvedValue(files("file"))
-
-  await remind()
-  expect(createCommentMock).not.toHaveBeenCalled()
 })
 
 it("should minimize reminder comments after a changelog is committed", async () => {
