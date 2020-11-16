@@ -23,19 +23,31 @@ Message to display if no changelog is found. Default: `"@${{ github.actor }} you
 Basic:
 
 ```yml
-steps:
-  - uses: actions/checkout@v2
-  - uses: mskelton/changelog-reminder-action@v2
+on: pull_request
+name: Changelog Reminder
+jobs:
+  remind:
+    name: Changelog Reminder
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: mskelton/changelog-reminder-action@v2
 ```
 
 Custom message:
 
 ```yml
-steps:
-  - uses: actions/checkout@v2
-  - uses: mskelton/changelog-reminder-action@v2
-    with:
-      message: "Oops! Looks like you forgot to update the changelog."
+on: pull_request
+name: Changelog Reminder
+jobs:
+  remind:
+    name: Changelog Reminder
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: mskelton/changelog-reminder-action@v2
+        with:
+          message: "Oops! Looks like you forgot to update the changelog."
 ```
 
 Ignore draft PRs:
