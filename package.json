@@ -13,7 +13,7 @@
     "reminder"
   ],
   "author": "Mark Skelton",
-  "license": "MIT",
+  "license": "ISC",
   "main": "src/index.ts",
   "scripts": {
     "format": "prettier --write .",
