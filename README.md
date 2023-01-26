@@ -27,6 +27,8 @@ Basic:
 ```yaml
 on: pull_request
 name: Changelog Reminder
+permissions:
+  pull-requests: write
 jobs:
   remind:
     name: Changelog Reminder
@@ -41,6 +43,8 @@ Custom message:
 ```yaml
 on: pull_request
 name: Changelog Reminder
+permissions:
+  pull-requests: write
 jobs:
   remind:
     name: Changelog Reminder
@@ -59,6 +63,8 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 name: Changelog Reminder
+permissions:
+  pull-requests: write
 jobs:
   remind:
     name: Changelog Reminder
