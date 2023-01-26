@@ -1,14 +1,44 @@
-jest.mock("@actions/core")
-jest.mock("@actions/github")
+import { jest, it, expect, beforeEach } from "@jest/globals"
 
-import { getInput, setFailed } from "@actions/core"
-import {
-  createCommentMock,
-  graphqlMock,
-  listCommentsMock,
-  listFilesMock,
-} from "@actions/github"
-import { runAction } from "../src/runAction"
+jest.unstable_mockModule("@actions/core", () => ({
+  getInput: jest.fn(),
+  setFailed: jest.fn(),
+}))
+
+jest.unstable_mockModule("@actions/github", () => {
+  const listFilesMock = jest.fn()
+  const createCommentMock = jest.fn()
+  const listCommentsMock = jest.fn()
+  const graphqlMock = jest.fn()
+
+  return {
+    listCommentsMock,
+    listFilesMock,
+    createCommentMock,
+    graphqlMock,
+    getOctokit: () => ({
+      graphql: graphqlMock,
+      rest: {
+        issues: {
+          createComment: createCommentMock,
+          listComments: listCommentsMock,
+        },
+        pulls: {
+          listFiles: listFilesMock,
+        },
+      },
+    }),
+    context: {
+      issue: { number: 123 },
+      repo: {},
+    },
+  }
+})
+
+const { getInput, setFailed } = await import("@actions/core")
+const { createCommentMock, graphqlMock, listCommentsMock, listFilesMock } =
+  await import("@actions/github")
+const { runAction } = await import("../src/runAction.js")
 
 const files = (...filenames) => ({
   data: filenames.map((filename) => ({ filename })),
