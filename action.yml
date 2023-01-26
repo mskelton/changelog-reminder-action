@@ -1,5 +1,6 @@
 name: Missing Changelog Reminder
-description: Reminds users to add a changelog if their pull request is missing one
+description:
+  Reminds users to add a changelog if their pull request is missing one
 author: Mark Skelton
 branding:
   icon: check
@@ -12,8 +13,10 @@ inputs:
     description: Message to display if no changelog is found
     default: "@${{ github.actor }} your pull request is missing a changelog!"
   token:
-    description: "GITHUB_TOKEN used to authenticate requests. Since there's a default, this is typically not supplied by the user."
+    description:
+      "GITHUB_TOKEN used to authenticate requests. Since there's a default, this
+      is typically not supplied by the user."
     default: ${{ github.token }}
 runs:
-  using: node12
+  using: node16
   main: dist/index.js
