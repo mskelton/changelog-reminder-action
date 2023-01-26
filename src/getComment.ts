@@ -8,15 +8,15 @@ import { context, getOctokit } from "@actions/github"
  *
  * @param comment - The comment text to normalize
  */
-function normalizeComment(comment: string) {
-  return comment.replace(/@[A-z\d-]+/g, "")
+function normalizeComment(comment: string | undefined) {
+  return comment?.replace(/@[A-z\d-]+/g, "") ?? ""
 }
 
 export async function getComment() {
   const octokit = getOctokit(getInput("token"))
   const message = normalizeComment(getInput("message"))
 
-  const { data: comments } = await octokit.issues.listComments({
+  const { data: comments } = await octokit.rest.issues.listComments({
     ...context.repo,
     issue_number: context.issue.number,
   })

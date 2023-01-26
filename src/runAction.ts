@@ -1,8 +1,8 @@
 import { getInput, setFailed } from "@actions/core"
 import { context, getOctokit } from "@actions/github"
-import { getComment } from "./getComment"
-import { isChangelogMissing } from "./isChangelogMissing"
-import { minimizeComment } from "./minimizeComment"
+import { getComment } from "./getComment.js"
+import { isChangelogMissing } from "./isChangelogMissing.js"
+import { minimizeComment } from "./minimizeComment.js"
 
 export async function runAction() {
   try {
@@ -14,7 +14,7 @@ export async function runAction() {
     ])
 
     if (changelogMissing && !comment) {
-      await octokit.issues.createComment({
+      await octokit.rest.issues.createComment({
         ...context.repo,
         body: getInput("message"),
         issue_number: context.issue.number,
@@ -28,6 +28,6 @@ export async function runAction() {
       await minimizeComment(comment.node_id)
     }
   } catch (err) {
-    setFailed(err.message)
+    setFailed((err as Error).message)
   }
 }
