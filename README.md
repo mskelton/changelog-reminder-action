@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: mskelton/changelog-reminder-action@v2
+      - uses: mskelton/changelog-reminder-action@v3
 ```
 
 Custom message:
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: mskelton/changelog-reminder-action@v2
+      - uses: mskelton/changelog-reminder-action@v3
         with:
           message: "Oops! Looks like you forgot to update the changelog."
 ```
@@ -72,7 +72,7 @@ jobs:
     if: ${{ !github.event.pull_request.draft }}
     steps:
       - uses: actions/checkout@v3
-      - uses: mskelton/changelog-reminder-action@v2
+      - uses: mskelton/changelog-reminder-action@v3
 ```
 
 Include specific files:
@@ -88,5 +88,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: mskelton/changelog-reminder-action@v2
+      - uses: mskelton/changelog-reminder-action@v3
 ```
