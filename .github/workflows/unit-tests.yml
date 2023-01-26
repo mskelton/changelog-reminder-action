@@ -4,10 +4,6 @@ jobs:
   unit-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "18.x"
-      - run: npm ci
-      - run: npm run lint
-      - run: npm test
+      - uses: mskelton/setup-yarn@v1
+      - run: yarn lint
+      - run: yarn test
